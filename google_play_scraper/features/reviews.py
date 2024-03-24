@@ -141,6 +141,93 @@ def reviews(
         ),
     )
 
+def reviews_time(
+    app_id: str,
+    lang: str = "en",
+    country: str = "us",
+    sort: Sort = Sort.NEWEST,
+    count: int = 100,
+    filter_score_with: int = None,
+    filter_device_with: int = None,
+    continuation_token: _ContinuationToken = None,
+) -> Tuple[List[dict], _ContinuationToken]:
+    sort = sort.value
+
+    if continuation_token is not None:
+        token = continuation_token.token
+
+        if token is None:
+            return (
+                [],
+                continuation_token,
+            )
+
+        lang = continuation_token.lang
+        country = continuation_token.country
+        sort = continuation_token.sort
+        count = continuation_token.count
+        filter_score_with = continuation_token.filter_score_with
+        filter_device_with = continuation_token.filter_device_with
+    else:
+        token = None
+
+    url = Formats.Reviews.build(lang=lang, country=country)
+
+    _fetch_count = count
+
+    result = []
+
+    start_time = time.time()  # Start tracking time
+
+    while True:
+        if _fetch_count == 0:
+            break
+
+        if _fetch_count > MAX_COUNT_EACH_FETCH:
+            _fetch_count = MAX_COUNT_EACH_FETCH
+
+        try:
+            review_items, token = _fetch_review_items(
+                url,
+                app_id,
+                sort,
+                _fetch_count,
+                filter_score_with,
+                filter_device_with,
+                token,
+            )
+        except (TypeError, IndexError):
+            token = continuation_token.token
+            continue
+
+        for review in review_items:
+            result.append(
+                {
+                    k: spec.extract_content(review)
+                    for k, spec in ElementSpecs.Review.items()
+                }
+            )
+
+        _fetch_count = count - len(result)
+
+        if isinstance(token, list):
+            token = None
+            break
+
+        # Check if 2 minutes have passed
+        elapsed_time = time.time() - start_time
+        print(f"Elapsed time: {elapsed_time:.2f} seconds")  # Print the elapsed time
+        if elapsed_time > 120:  # 2 minutes in seconds
+            print("Time limit reached. Stopping the loop.")
+            break
+
+    return (
+        result,
+        _ContinuationToken(
+            token, lang, country, sort, count, filter_score_with, filter_device_with
+        ),
+    )
+
 
 def reviews_all(app_id: str, sleep_milliseconds: int = 0, **kwargs) -> list:
     kwargs.pop("count", None)

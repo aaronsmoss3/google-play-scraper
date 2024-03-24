@@ -218,7 +218,7 @@ def reviews_time(
         # Check if 2 minutes have passed
         elapsed_time = tm.time() - start_time
         print(f"Elapsed time: {elapsed_time:.2f} seconds")  # Print the elapsed time
-        if elapsed_time > 120:  # 2 minutes in seconds
+        if elapsed_time > 20:  # 2 minutes in seconds
             print("Time limit reached. Stopping the loop.")
             break
 

@@ -1,3 +1,4 @@
+
 import json
 from time import sleep 
 import time as tm
@@ -56,6 +57,11 @@ def _fetch_review_items(
         ),
         {"content-type": "application/x-www-form-urlencoded"},
     )
+    # MOD error handling
+    if "error.PlayDataError" in dom:
+        return _fetch_review_items(url, app_id, sort, count, filter_score_with, pagination_token)
+    # ENDMOD
+    
     match = json.loads(Regex.REVIEWS.findall(dom)[0])
 
     return json.loads(match[0][2])[0], json.loads(match[0][2])[-2][-1]

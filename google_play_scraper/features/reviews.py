@@ -1,5 +1,5 @@
 import json
-from time import sleep
+from time import sleep, time
 from typing import List, Optional, Tuple
 
 from google_play_scraper import Sort

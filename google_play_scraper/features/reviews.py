@@ -1,5 +1,6 @@
 import json
-from time import sleep, time
+from time import sleep 
+import time as tm
 from typing import List, Optional, Tuple
 
 from google_play_scraper import Sort
@@ -177,7 +178,7 @@ def reviews_time(
 
     result = []
 
-    start_time = time.time()  # Start tracking time
+    start_time = tm.time()  # Start tracking time
 
     while True:
         if _fetch_count == 0:

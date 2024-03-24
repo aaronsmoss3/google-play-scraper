@@ -96,13 +96,15 @@ def reviews(
 
     result = []
 
+    start_time = time.time()  # Start tracking time
+
     while True:
         if _fetch_count == 0:
             break
 
         if _fetch_count > MAX_COUNT_EACH_FETCH:
             _fetch_count = MAX_COUNT_EACH_FETCH
-        ## funnan mod
+
         try:
             review_items, token = _fetch_review_items(
                 url,
@@ -114,11 +116,8 @@ def reviews(
                 token,
             )
         except (TypeError, IndexError):
-            #funnan MOD start
             token = continuation_token.token
-            ## old token = None
             continue
-            #MOD end
 
         for review in review_items:
             result.append(
@@ -134,12 +133,20 @@ def reviews(
             token = None
             break
 
+        # Check if 2 minutes have passed
+        elapsed_time = time.time() - start_time
+        print(f"Elapsed time: {elapsed_time:.2f} seconds")  # Print the elapsed time
+        if elapsed_time > 120:  # 2 minutes in seconds
+            print("Time limit reached. Stopping the loop.")
+            break
+
     return (
         result,
         _ContinuationToken(
             token, lang, country, sort, count, filter_score_with, filter_device_with
         ),
     )
+
 
 
 def reviews_all(app_id: str, sleep_milliseconds: int = 0, **kwargs) -> list:

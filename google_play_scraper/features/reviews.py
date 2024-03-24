@@ -102,7 +102,7 @@ def reviews(
 
         if _fetch_count > MAX_COUNT_EACH_FETCH:
             _fetch_count = MAX_COUNT_EACH_FETCH
-
+        ## funnan mod
         try:
             review_items, token = _fetch_review_items(
                 url,
@@ -114,8 +114,11 @@ def reviews(
                 token,
             )
         except (TypeError, IndexError):
-            token = None
-            break
+            #funnan MOD start
+            token = continuation_token.token
+            ## old token = None
+            continue
+            #MOD end
 
         for review in review_items:
             result.append(
